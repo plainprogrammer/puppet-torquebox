@@ -32,4 +32,9 @@ puppet module install plainprogrammer-torquebox
 Usage
 -----
 
-
+    class { 'torquebox':
+      use_latest      => true,
+      openjdk_version => 6,
+      openjdk_variant => 'headless',
+      version         => '2.3.0'
+    }
