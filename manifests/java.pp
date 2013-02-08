@@ -26,11 +26,6 @@ class torquebox::java (
       } else {
         $package_name = "openjdk-${openjdk_version}-jre-${openjdk_variant}"
       }
-
-      exec {'update_package_sources':
-        command => '/usr/bin/apt-get update -qq',
-        before  => Package[$package_name]
-      }
     }
     default: {
       fail("The torquebox::java module is not supported on ${::osfamily} based systems")
