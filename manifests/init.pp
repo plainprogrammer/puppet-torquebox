@@ -11,9 +11,9 @@ class torquebox (
   $add_to_path      = false
 ) {
   if $use_latest == true {
-    $package_ensure = latest
+    $package_ensure = 'latest'
   } elsif $use_latest == false {
-    $package_ensure = present
+    $package_ensure = 'present'
   } else {
     fail('The use_latest parameter must be either true or false.')
   }
@@ -41,15 +41,15 @@ class torquebox (
   }
 
   file { ['/root/src', '/opt/torquebox']:
-    ensure => directory
+    ensure => 'directory'
   }
 
   group { 'torquebox':
-    ensure => present
+    ensure => 'present'
   }
 
   user { 'torquebox':
-    ensure  => present,
+    ensure  => 'present',
     gid     => 'torquebox',
     home    => '/opt/torquebox',
     require => Group['torquebox']
@@ -63,13 +63,13 @@ class torquebox (
                   /bin/ln -s /opt/torquebox/${version} /opt/torquebox/current &&
                   /bin/chown -R torquebox:torquebox /opt/torquebox",
     creates   => '/opt/torquebox/current/jboss/bin/standalone.sh',
-    logoutput => on_failure,
+    logoutput => 'on_failure',
     timeout   => 0,
     require   => [Package['unzip'], File['/root/src','/opt/torquebox'], User['torquebox']]
   }
 
   file { '/etc/profile.d/torquebox_vars.sh':
-    ensure  => present,
+    ensure  => 'present',
     source  => 'puppet:///modules/torquebox/torquebox_vars.sh',
     owner   => 'root',
     group   => 'root',
@@ -80,7 +80,7 @@ class torquebox (
 
   if $add_to_path == true {
     file { '/etc/profile.d/torquebox_path.sh':
-      ensure  => present,
+      ensure  => 'present',
       source  => 'puppet:///modules/torquebox/torquebox_path.sh',
       owner   => 'root',
       group   => 'root',
@@ -89,15 +89,18 @@ class torquebox (
     }
   }
 
-  exec { 'install_upstart':
-    command   => '/bin/cp /opt/torquebox/current/share/init/torquebox.conf /etc/init/torquebox.conf',
-    creates   => '/etc/init/torquebox.conf',
-    require   => Exec['install_torquebox']
+  file { '/etc/init/torquebox.conf':
+    ensure  => 'present',
+    source  => 'puppet:///modules/torquebox/upstart.conf',
+    owner   => 'root',
+    group   => 'root',
+    mode    => '0644',
+    require => Exec['install_torquebox']
   }
 
   service { 'torquebox':
-    ensure  => running,
+    ensure  => 'running',
     enable  => true,
-    require => Exec['install_upstart']
+    require => File['/etc/init/torquebox.conf']
   }
 }
