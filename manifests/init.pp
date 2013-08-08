@@ -60,10 +60,11 @@ class torquebox (
     command   => "/usr/bin/wget ${torquebox_source} &&
                   /usr/bin/unzip ${torquebox_package} &&
                   /bin/mv torquebox-${version} /opt/torquebox/${version} &&
-                  /bin/ln -s /opt/torquebox/${version} /opt/torquebox/current &&
+                  rm /opt/torquebox/current &&
+                  /bin/ln -sf /opt/torquebox/${version} /opt/torquebox/current &&
                   /bin/chown -R torquebox:torquebox /opt/torquebox",
-    creates   => '/opt/torquebox/current/jboss/bin/standalone.sh',
-    logoutput => 'on_failure',
+    creates   => "/opt/torquebox/${version}/jboss/bin/standalone.sh",
+    logoutput => 'true',
     timeout   => 0,
     require   => [Package['unzip'], File['/root/src','/opt/torquebox'], User['torquebox']]
   }
